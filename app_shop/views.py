@@ -11,7 +11,6 @@ class ShowOrders(TemplateView):
 
     def get_context_data(self, **kwargs):
         orders = Order.objects.filter(buyer__username='admin').prefetch_related('cart')
-        print(orders)
         kwargs.update({
             'orders': orders
         })
