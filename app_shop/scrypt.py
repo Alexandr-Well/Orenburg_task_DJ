@@ -17,14 +17,20 @@ def get_users_stuff(name: str) -> List:
         Order.objects.filter(buyer__username=name).values('id').annotate(prices=Sum('cart__price')))
     prod_ides = list(map(lambda item: item['id'], orders_by_userid_total_price))
     order_by_product = list(
-        Order.objects.filter(pk__in=prod_ides).values('cart__product__name').annotate(buying_id=Sum('id')))
+        Order.objects.filter(pk__in=prod_ides).values('cart__product__name', 'cart__quantity', 'id'))
+
     if orders_by_userid_total_price:
         for order in orders_by_userid_total_price:
-            order['products'] = list(filter(lambda item: item['buying_id'] == order['id'], order_by_product))
+            order['products'] = list(filter(lambda item: item['id'] == order['id'], order_by_product))
     return orders_by_userid_total_price
 
 
-for item in get_users_stuff('admin'):
-    print(item)
-print(len(connection.queries))
+users_stuff = get_users_stuff('admin')
+if users_stuff:
+    for item in users_stuff:
+        print(item)
+else:
+    print(0)
+
+print(len(connection.queries), 'db connections')
 # В принципе в выводе по названию ключей уже все видно и понятно, можно конечно вывод оформить лучше
